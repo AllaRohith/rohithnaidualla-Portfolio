@@ -1043,6 +1043,217 @@ body.hero-ready .hero-image {
     50%      { transform: translate(5px, -10px); }
 }
 
+/* ========================================
+   ANIMATED GRAFFITI EFFECTS — surround the
+   hero cutout. 7 distinct effects, all
+   aria-hidden + decorative.
+   ======================================== */
+
+/* Common: all graffiti pieces are absolutely positioned within
+   .hero-image (their positioned ancestor) and ignore pointer events
+   so the portrait's hover scale still works underneath. */
+.graffiti-scribble,
+.graffiti-tag,
+.graffiti-drip,
+.graffiti-splat,
+.graffiti-burst {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* 1. SCRIBBLE — SVG path that draws itself around the cutout
+   border. Uses stroke-dasharray reveal animation. */
+.graffiti-scribble {
+    inset: -3%;                     /* extend slightly past the cutout */
+    width: 106%;
+    height: 106%;
+    color: var(--lime);             /* lime stroke */
+    z-index: 4;                      /* above portrait */
+    filter: drop-shadow(0 0 10px rgba(212, 255, 58, 0.6));
+    /* Hand-drawn feel — slight rotation. */
+    transform: rotate(-1.5deg);
+    transform-origin: center center;
+}
+
+.graffiti-scribble path {
+    /* Total path length is ~360 units (rough estimate for a rounded rect
+       outline). dasharray + dashoffset creates the draw-on animation. */
+    stroke-width: 1.2;              /* thicker for visibility */
+    stroke-dasharray: 400;
+    stroke-dashoffset: 400;
+    animation: graffitiScribbleDraw 1.8s cubic-bezier(0.65, 0, 0.35, 1) 0.6s forwards;
+}
+
+@keyframes graffitiScribbleDraw {
+    to { stroke-dashoffset: 0; }
+}
+
+/* 2-3. FLOATING TAG STICKERS — small labels at angles, gently bobbing */
+.graffiti-tag {
+    z-index: 5;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    /* Soft glow to make the tag pop on the dark bg. */
+    text-shadow: 0 0 6px currentColor;
+    animation: graffitiTagBob 4s ease-in-out infinite;
+    white-space: nowrap;
+}
+
+.graffiti-tag-1 {
+    color: var(--cyan);
+    border: 1px solid var(--cyan);
+    top: 8%;
+    right: -8%;
+    transform: rotate(8deg);
+    box-shadow: 0 0 16px rgba(6, 182, 212, 0.3);
+    animation-delay: 1.2s;
+}
+
+.graffiti-tag-2 {
+    color: var(--lime);
+    border: 1px solid var(--lime);
+    bottom: 12%;
+    left: -10%;
+    transform: rotate(-6deg);
+    box-shadow: 0 0 16px rgba(212, 255, 58, 0.3);
+    animation-delay: 1.6s;
+}
+
+@keyframes graffitiTagBob {
+    0%, 100% { translate: 0 0; }
+    50%      { translate: 0 -6px; }
+}
+
+/* 4-6. SPRAY DRIPS — vertical color streaks falling from top of
+   cutout. Each drips at its own speed + position. */
+.graffiti-drip {
+    top: 0;
+    width: 4px;
+    height: 40px;
+    border-radius: 2px;
+    z-index: 4;
+    /* The drip "drop" is a CSS gradient on the element — fades out at
+       the bottom so it looks like a real wet paint drip. */
+    background: linear-gradient(180deg,
+        currentColor 0%,
+        currentColor 70%,
+        transparent 100%);
+    /* Mask to make the bottom taper like a real drip. */
+    -webkit-mask-image: linear-gradient(180deg, black 50%, transparent 100%);
+            mask-image: linear-gradient(180deg, black 50%, transparent 100%);
+    animation: graffitiDrip 3.5s ease-in infinite;
+    transform-origin: top center;
+}
+
+.graffiti-drip-1 {
+    color: var(--lime);
+    left: 25%;
+    height: 60px;
+    animation-delay: 0.5s;
+    animation-duration: 4s;
+}
+.graffiti-drip-2 {
+    color: var(--cyan);
+    left: 50%;
+    height: 80px;
+    animation-delay: 1.5s;
+    animation-duration: 5s;
+}
+.graffiti-drip-3 {
+    color: var(--violet-light);
+    left: 75%;
+    height: 50px;
+    animation-delay: 2.5s;
+    animation-duration: 4.5s;
+}
+
+@keyframes graffitiDrip {
+    0%   { transform: scaleY(0);   opacity: 0; }
+    15%  { transform: scaleY(1);   opacity: 0.9; }
+    60%  { transform: scaleY(1);   opacity: 0.9; }
+    100% { transform: scaleY(1.6) translateY(20px); opacity: 0; }
+}
+
+/* 7-11. OVERSPRAY DOTS — small color splatter around the cutout.
+   Pure CSS, no images. */
+.graffiti-splat {
+    border-radius: 50%;
+    z-index: 3;
+    /* Tiny drop-shadow for that "painted on" feel. */
+    box-shadow: 0 0 4px currentColor;
+}
+
+.graffiti-splat-1 {
+    width: 6px;  height: 6px;
+    color: var(--lime);
+    top: 4%;   right: 18%;
+}
+.graffiti-splat-2 {
+    width: 4px;  height: 4px;
+    color: var(--cyan);
+    top: 18%;  right: 4%;
+}
+.graffiti-splat-3 {
+    width: 5px;  height: 5px;
+    color: var(--violet);
+    bottom: 24%; left: 6%;
+}
+.graffiti-splat-4 {
+    width: 3px;  height: 3px;
+    color: var(--lime);
+    bottom: 8%;  right: 24%;
+}
+.graffiti-splat-5 {
+    width: 7px;  height: 7px;
+    color: var(--cyan);
+    top: 50%;  right: -2%;
+}
+
+/* 12. COLOR BURST — concentric SVG circles that pulse outward.
+   Centered behind the cutout, very subtle. */
+.graffiti-burst {
+    top: 50%;
+    left: 50%;
+    width: 130%;
+    height: 130%;
+    transform: translate(-50%, -50%);
+    color: var(--violet);
+    z-index: 2;
+    opacity: 0.5;
+    animation: graffitiBurstPulse 4s ease-in-out infinite;
+}
+
+@keyframes graffitiBurstPulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(0.95);
+        opacity: 0.4;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+        opacity: 0.7;
+    }
+}
+
+/* Reduced motion — keep all graffiti static, no animation. */
+@media (prefers-reduced-motion: reduce) {
+    .graffiti-scribble,
+    .graffiti-tag,
+    .graffiti-drip,
+    .graffiti-splat,
+    .graffiti-burst {
+        animation: none !important;
+    }
+    .graffiti-scribble path {
+        stroke-dashoffset: 0;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .hero-image-dot-1, .hero-image-dot-2, .hero-image-dot-3 {
         animation: none !important;
