@@ -586,9 +586,37 @@ class Animations {
     }
 
     triggerHeroAnimations() {
-        // The hero now only contains the .hero-image — animate that as the reveal.
-        // All other targets (.hero-badge, .title-line, .hero-desc, .hero-cta,
-        // .scroll-indicator) were removed when the hero content was stripped.
+        const hero = document.querySelector('.hero');
+        if (!hero) return;
+
+        // 1) Mark the hero as entered. CSS handles the staggered reveal of
+        //    [data-hero-stagger] elements + the floating dots. We do this
+        //    on a 2-frame rAF so the initial transition state applies first.
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            hero.classList.add('hero-in');
+        }));
+
+        // 2) Draw the SVG arc — transition stroke-dashoffset → 0 via CSS.
+        //    This is intentionally NOT a GSAP timeline so it composes with
+        //    the CSS transitions above and respects prefers-reduced-motion.
+        const arcPath = hero.querySelector('.hero-arc-path');
+        if (arcPath) {
+            // Force layout flush so the dasharray length is measured from
+            // the final rendered geometry, not the pre-paint state.
+            const len = arcPath.getTotalLength();
+            arcPath.style.strokeDasharray = String(len);
+            arcPath.style.strokeDashoffset = String(len);
+            requestAnimationFrame(() => {
+                // Delay matches the stagger: arc appears after the image
+                // finishes settling (image stagger ends ~1.2s).
+                setTimeout(() => {
+                    arcPath.style.strokeDashoffset = '0';
+                }, 350);
+            });
+        }
+
+        // 3) Existing GSAP parallax lift on the image — kept for cursor
+        //    interaction (the CSS transform composes via separate property).
         gsap.from('.hero-image', {
             opacity: 0,
             y: 40,
@@ -596,6 +624,31 @@ class Animations {
             ease: 'power3.out'
         });
 
+        // 4) Wire the scroll-exit observer — toggles .hero-exiting once the
+        //    user scrolls more than ~35% of the hero past the top. Uses
+        //    IntersectionObserver (single listener, no scroll spam).
+        this.setupHeroExit(hero);
+    }
+
+    setupHeroExit(hero) {
+        // Skip on reduced motion — CSS will also disable the transitions.
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        // A tiny invisible sentinel at the top of the hero. When it leaves
+        // the viewport we toggle .hero-exiting; when it returns we clear it.
+        const sentinel = document.createElement('div');
+        sentinel.setAttribute('aria-hidden', 'true');
+        sentinel.style.cssText =
+            'position:absolute;top:25%;left:0;width:1px;height:1px;pointer-events:none;';
+        hero.appendChild(sentinel);
+
+        const io = new IntersectionObserver(
+            ([entry]) => {
+                hero.classList.toggle('hero-exiting', !entry.isIntersecting);
+            },
+            { rootMargin: '0px 0px -50% 0px', threshold: 0 }
+        );
+        io.observe(sentinel);
     }
 
     setupScrollAnimations() {

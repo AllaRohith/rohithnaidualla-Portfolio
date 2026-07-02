@@ -171,12 +171,37 @@
 
     <main id="main">
 
-    <!-- Hero Section — centered profile cutout with name backdrop -->
-    <section class="hero" id="home">
-        <!-- Big stylish name — sits BEHIND the image, peeks around the cutout -->
-        <h1 class="hero-name" aria-hidden="true">ROHITH NAIDU ALLA</h1>
+    <!-- Hero Section — centered profile cutout with name backdrop, vignette glow,
+         animated arc, tagline, and staggered entrance. -->
+    <section class="hero" id="home" data-hero-section>
 
-        <div class="hero-image" data-parallax>
+        <!-- Vignette glow — sits behind everything except the backdrop text. -->
+        <div class="hero-vignette" aria-hidden="true"></div>
+
+        <!-- Animated decorative arc — single clean swoosh behind the cutout. -->
+        <svg class="hero-arc" viewBox="0 0 600 900" preserveAspectRatio="xMidYMid meet"
+             aria-hidden="true">
+            <defs>
+                <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%"   stop-color="#7C3AED" stop-opacity="0.55"/>
+                    <stop offset="50%"  stop-color="#06B6D4" stop-opacity="0.45"/>
+                    <stop offset="100%" stop-color="#D4FF3A" stop-opacity="0.35"/>
+                </linearGradient>
+            </defs>
+            <path class="hero-arc-path"
+                  d="M 300 60 Q 90 200 90 470 Q 90 760 300 840 Q 510 760 510 470 Q 510 200 300 60 Z"
+                  fill="none"
+                  stroke="url(#arcGradient)"
+                  stroke-width="1.25"
+                  stroke-linecap="round"
+                  stroke-dasharray="3200"
+                  stroke-dashoffset="3200"/>
+        </svg>
+
+        <!-- Big stylish name — sits BEHIND the image, peeks around the cutout. -->
+        <h1 class="hero-name" aria-hidden="true" data-hero-stagger="1">ROHITH NAIDU ALLA</h1>
+
+        <div class="hero-image" data-parallax data-hero-stagger="2">
             <!-- Image itself (transparent-bg cutout: WebP → PNG fallback) -->
             <picture>
                 <source srcset="assets/rohioth-sm.webp 400w, assets/rohioth.webp 600w"
@@ -200,6 +225,13 @@
             <span class="hero-image-dot hero-image-dot-2" aria-hidden="true"></span>
             <span class="hero-image-dot hero-image-dot-3" aria-hidden="true"></span>
         </div>
+
+        <!-- Tagline — primary + secondary line. Sits beneath the cutout. -->
+        <p class="hero-tagline" data-hero-stagger="3">
+            <span class="hero-tagline-primary">Creative Developer</span>
+            <span class="hero-tagline-divider" aria-hidden="true">·</span>
+            <span class="hero-tagline-secondary">Building thoughtful interfaces</span>
+        </p>
     </section>
 
     <!-- Marquee Divider: Hero → About -->

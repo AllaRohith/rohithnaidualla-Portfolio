@@ -857,11 +857,13 @@ body.hero-ready .hero-image {
     min-height: 100dvh;
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 6rem 1.5rem 3rem;
     position: relative;
     z-index: 1;
+    overflow: hidden;             /* contain vignette + arc safely */
 }
 
 /* ========================================
@@ -879,40 +881,65 @@ body.hero-ready .hero-image {
 
     font-family: var(--font-display);   /* unified with the rest of the page */
     font-weight: 800;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.05em;            /* tighter for premium editorial feel */
     line-height: 0.9;
     text-align: center;
     text-transform: uppercase;
 
-    /* clamp() ensures it never gets too small to read or too large to overflow.
-       - Min 48px (smallest readable size)
-       - Preferred 13vw (scales with viewport)
-       - Max 220px (caps dramatic size on huge screens) */
+    /* clamp() ensures it never gets too small to read or too large to overflow. */
     font-size: clamp(48px, 13vw, 220px);
 
-    /* Subtle violet-tinted white fill — image stays the focal point */
-    color: rgba(255, 255, 255, 0.07);
+    /* Gradient fill — violet → cyan → bone, on brand. Sits as the page's
+       signature accent. background-clip:text isolates the gradient to the
+       glyph shapes. */
+    background: linear-gradient(135deg,
+        rgba(124, 58, 237, 0.32) 0%,
+        rgba(6, 182, 212, 0.24)  50%,
+        rgba(245, 244, 238, 0.18) 100%);
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;                /* fallback for non-webkit browsers */
 
-    /* Outline effect: thin gradient-tinted stroke for definition without brightness.
-       -webkit-text-stroke is the cross-browser way to add text outline. */
-    -webkit-text-stroke: 0.75px rgba(124, 58, 237, 0.45);
+    /* Outline effect: thin gradient-tinted stroke for definition without
+       brightness. -webkit-text-stroke is cross-browser. */
+    -webkit-text-stroke: 0.75px rgba(124, 58, 237, 0.4);
 
-    /* Soft outer glow using text-shadow — gives the letters a gentle aura
-       that matches the page's violet→cyan palette. */
+    /* Soft outer glow using text-shadow — gives the letters a gentle aura. */
     text-shadow:
-        0 0 20px rgba(124, 58, 237, 0.18),
-        0 0 40px rgba(6, 182, 212, 0.10);
+        0 0 20px rgba(124, 58, 237, 0.22),
+        0 0 40px rgba(6, 182, 212, 0.12);
 
     /* Behind the image */
     z-index: 0;
     pointer-events: none;
     user-select: none;
 
-    /* Width forces natural wrap on narrow viewports without overflow.
-       max-width caps it on ultra-wide so text doesn't span 5000px. */
+    /* Width forces natural wrap on narrow viewports without overflow. */
     width: 92%;
     max-width: 1600px;
     margin: 0;
+
+    /* GPU-friendly transitions — JS will toggle .hero-exiting class to blur
+       and lift as the user scrolls past the hero. */
+    will-change: transform, filter, opacity;
+    transition: transform 0.4s ease, filter 0.4s ease, opacity 0.4s ease;
+}
+
+/* Scroll-driven exit — applied to the whole hero. The name blurs,
+   the image lifts, the tagline drifts down. */
+.hero.hero-exiting .hero-name {
+    filter: blur(4px);
+    opacity: 0.45;
+    transform: translate(-50%, -50%) scale(0.98);
+}
+.hero.hero-exiting .hero-image {
+    transform: translateY(-10px) scale(1.04);
+    opacity: 0.92;
+}
+.hero.hero-exiting .hero-tagline {
+    opacity: 0;
+    transform: translateY(8px);
 }
 
 /* Mobile — slightly smaller, tighter line-height, allow wrap */
@@ -1041,6 +1068,145 @@ body.hero-ready .hero-image {
 @keyframes dotFloat-3 {
     0%, 100% { transform: translate(0, 0); }
     50%      { transform: translate(5px, -10px); }
+}
+
+/* ========================================
+   HERO VIGNETTE — radial halo of light that
+   sits BEHIND the cutout. Makes the portrait
+   feel lit, not pasted onto a flat bg.
+
+   Pure CSS radial-gradient — no extra DOM, no
+   canvas, no JS. Cheap.
+   ======================================== */
+.hero-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 0;                       /* behind image + backdrop name */
+    pointer-events: none;
+
+    background:
+        radial-gradient(ellipse 38% 50% at 50% 45%,
+            rgba(124, 58, 237, 0.22) 0%,
+            rgba(6, 182, 212, 0.10) 35%,
+            rgba(7, 7, 10, 0)        70%),
+        radial-gradient(ellipse 60% 70% at 50% 50%,
+            rgba(124, 58, 237, 0.06) 0%,
+            rgba(7, 7, 10, 0)        65%);
+    filter: blur(8px);
+    will-change: opacity;
+}
+
+/* ========================================
+   HERO ARC — single clean SVG swoosh that
+   draws itself on entrance. Sits between
+   the backdrop name and the cutout so the
+   image peeks through the open shape.
+   ======================================== */
+.hero-arc {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(540px, 78vw);
+    height: auto;
+    aspect-ratio: 2 / 3;
+    transform: translate(-50%, -50%);
+    z-index: 1;                       /* above backdrop name, below image */
+    pointer-events: none;
+    overflow: visible;
+    will-change: opacity, transform;
+}
+.hero-arc-path {
+    /* Entrance animation handled by JS (adds .hero-arc-drawn which transitions
+       stroke-dashoffset → 0). Default state is fully hidden. */
+    transition: stroke-dashoffset 1.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ========================================
+   HERO TAGLINE — sits beneath the cutout.
+   Primary label in violet, secondary in
+   muted bone. Single line on desktop,
+   stacks gracefully on mobile.
+   ======================================== */
+.hero-tagline {
+    position: relative;
+    z-index: 3;                       /* above the image */
+    margin: 2rem 0 0;
+    padding: 0;
+    text-align: center;
+    font-family: var(--font-body, inherit);
+    font-weight: 400;
+    font-size: clamp(0.8125rem, 1.5vw, 0.95rem);
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    color: rgba(245, 244, 238, 0.55);
+    will-change: transform, opacity;
+}
+.hero-tagline-primary {
+    color: rgba(212, 255, 58, 0.92);    /* lime accent — pop */
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 0.78em;
+}
+.hero-tagline-divider {
+    display: inline-block;
+    margin: 0 0.55em;
+    color: rgba(245, 244, 238, 0.3);
+}
+.hero-tagline-secondary {
+    color: rgba(245, 244, 238, 0.6);
+    font-style: italic;
+}
+
+/* ========================================
+   STAGGER ENTRANCE — initial hidden state
+   for elements with [data-hero-stagger].
+   JS adds .hero-in once the page is loaded
+   to transition each to its final position.
+   ======================================== */
+[data-hero-stagger] {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+        opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-hero-stagger="1"] { transition-delay: 0.10s; }
+[data-hero-stagger="2"] { transition-delay: 0.30s; }
+[data-hero-stagger="3"] { transition-delay: 0.65s; }
+
+.hero.hero-in [data-hero-stagger] {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Dots — extra stagger inside the image. They live outside [data-hero-stagger]
+   so we transition them on their own delay relative to the image. */
+.hero-image-dot {
+    opacity: 0;
+    transition: opacity 0.8s ease;
+}
+.hero.hero-in .hero-image-dot-1 { transition-delay: 0.85s; opacity: 1; }
+.hero.hero-in .hero-image-dot-2 { transition-delay: 0.95s; opacity: 1; }
+.hero.hero-in .hero-image-dot-3 { transition-delay: 1.05s; opacity: 1; }
+
+/* Respect users who don't want motion. */
+@media (prefers-reduced-motion: reduce) {
+    [data-hero-stagger],
+    .hero-image-dot,
+    .hero-arc-path {
+        transition: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+    .hero-arc-path { stroke-dashoffset: 0 !important; }
+    .hero.hero-exiting .hero-name,
+    .hero.hero-exiting .hero-image,
+    .hero.hero-exiting .hero-tagline {
+        filter: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
