@@ -67,6 +67,10 @@ body {
     color: var(--text);
     line-height: 1.6;
     overflow-x: hidden;
+    /* Prevent iOS Safari from auto-bumping font sizes on rotate / form-focus.
+       Without this the hero type can scale up to 200% on first load. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     max-width: 100vw;
 }
 
@@ -866,19 +870,40 @@ body.hero-ready .hero-image {
 /* Mobile — slightly smaller, tighter line-height, allow wrap */
 @media (max-width: 860px) {
     .hero-name {
-        font-size: clamp(40px, 14vw, 110px);
-        line-height: 1;
-        width: 88%;
-        -webkit-text-stroke: 0.5px rgba(124, 58, 237, 0.4);
+        font-size: clamp(38px, 12.5vw, 100px);
+        line-height: 1.05;
+        width: 92%;
+        /* Reduce stroke on touch — pixel-thin strokes disappear on screens */
+        -webkit-text-stroke: 0.4px rgba(124, 58, 237, 0.35);
     }
 }
 
-/* Very small phones — even tighter */
+/* Very small phones — even tighter. Critical for 320–360px devices where the
+   full name previously overflowed the viewport. Lower bound holds at 28px
+   so it never crowds the page. */
+@media (max-width: 480px) {
+    .hero-name {
+        font-size: clamp(28px, 10.5vw, 64px);
+        line-height: 1.08;
+        width: 94%;
+        letter-spacing: -1px;
+        -webkit-text-stroke: 0.3px rgba(124, 58, 237, 0.3);
+    }
+}
+
 @media (max-width: 380px) {
     .hero-name {
-        font-size: clamp(34px, 12vw, 80px);
-        width: 92%;
-        -webkit-text-stroke: 0.4px rgba(124, 58, 237, 0.4);
+        font-size: clamp(26px, 9.5vw, 56px);
+        width: 96%;
+        -webkit-text-stroke: 0.3px rgba(124, 58, 237, 0.3);
+    }
+}
+
+@media (max-width: 320px) {
+    .hero-name {
+        font-size: clamp(22px, 9vw, 48px);
+        width: 100%;
+        letter-spacing: -0.5px;
     }
 }
 
@@ -1777,6 +1802,9 @@ html, body, main, .hero, .section, .container {
 /* Footer */
 .footer {
     padding: 3rem;
+    /* Bottom safe-area — gives breathing room above the iOS home indicator
+       on devices with bottom bars (iPhone X+, Android gesture nav). */
+    padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
     border-top: 1px solid var(--dark-4);
     position: relative;
     z-index: 1;
@@ -1975,6 +2003,9 @@ body.show-anyway .loader {
     align-items: center;
     gap: 0.75rem;
     padding: 0.5rem 1.5rem;
+    /* Add safe-area top padding so the status strip doesn't tuck under the
+       notch on iPhone X+ and similar devices. */
+    padding-top: calc(0.5rem + env(safe-area-inset-top, 0px));
     background: rgba(7, 7, 10, 0.7);
     backdrop-filter: blur(16px) saturate(140%);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
@@ -2042,6 +2073,33 @@ body.show-anyway .loader {
 @media (max-width: 768px) {
     .status-bar { font-size: 0.625rem; padding: 0.4rem 1rem; gap: 0.5rem; }
     .status-hint { display: none; }
+}
+
+/* Phones — keep the status strip ultra-compact so it doesn't dominate the
+   hero. Hide the secondary meta column entirely; keep only the live "OPEN
+   TO WORK" indicator + the audio toggle. */
+@media (max-width: 540px) {
+    .status-bar {
+        font-size: 0.55rem;
+        padding: 0.35rem 0.85rem;
+        gap: 0.4rem;
+    }
+    /* Hide every flex-segment except :first-of-kind + last (.audio-toggle) */
+    .status-time { display: none; }
+    .status-info { gap: 0.4rem; }
+    .status-info .status-label { display: none; }
+    /* Keep only the dot + value for each item */
+    .status-info > span:not(:first-child) { display: none; }
+}
+
+@media (max-width: 360px) {
+    .status-bar {
+        font-size: 0.5rem;
+        padding: 0.3rem 0.75rem;
+        letter-spacing: 0.02em;
+    }
+    /* On tiny phones, hide the audio toggle too — keep only the "live" dot+text */
+    .audio-toggle { display: none; }
 }
 
 /* Audio-reactive toggle button in status bar */
@@ -2326,6 +2384,10 @@ button:focus-visible {
         top: 0;
         left: 0;
         width: 100%;
+        /* dvh = dynamic viewport height — iOS Safari collapses 100vh when the
+           URL bar hides, leaving a gap at the bottom of the panel. 100vh
+           is the fallback for older browsers. */
+        height: 100dvh;
         height: 100vh;
         background: var(--dark);
         flex-direction: column;
@@ -2402,16 +2464,24 @@ button:focus-visible {
     .hero-desc { font-size: 0.85rem; }
     .btn { padding: 0.7rem 1.4rem; font-size: 0.7rem; }
     .section { padding: 3rem 1rem; }
-    .section-title { font-size: 2rem; margin-bottom: 2.5rem; }
+    /* Tighter section title on tiny phones — was overflowing horizontally
+       for "EXPERIENCE" / "SELECTED WORK" at 1fr breakpoint on 320px. */
+    .section-title { font-size: 1.65rem; margin-bottom: 2rem; letter-spacing: -0.02em; }
+    .section-subtitle { font-size: 0.85rem; }
     .work-grid { gap: 1rem; }
     .skill-bar { height: 4px; }
     .contact-card { padding: 1rem; gap: 1rem; }
-    .contact-email { font-size: 1.1rem; }
+    .contact-email { font-size: 1.05rem; word-break: break-all; }
     .footer { padding: 2rem 1rem; }
     .nav { padding: 0.75rem 1rem; }
     .loader-name { font-size: 2.25rem !important; }
     .nebula { width: 280px !important; height: 280px !important; }
     .scroll-rail { display: none; }
+    /* Marquee dividers — drop vertical scale, tighten padding */
+    .section-divider-marquee {
+        --marquee-text-size: 2.25rem;
+        padding: 1rem 0;
+    }
 }
 
 /* Small phones — 480px and below */

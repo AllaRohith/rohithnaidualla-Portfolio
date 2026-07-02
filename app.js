@@ -218,7 +218,9 @@ class ParticleSystem {
 
         this.ctx = this.canvas.getContext('2d');
         this.particles = [];
-        this.particleCount = 80;
+        // Particle count scales down for phones: connections-per-frame
+        // is O(n²) and tanks battery + janks scroll on low-end devices.
+        this.particleCount = isMobile() ? 24 : 80;
         this.mouse = { x: 0, y: 0, radius: 150 };
 
         this.init();
@@ -339,6 +341,14 @@ class FieldLines {
         this.canvas = document.getElementById('fieldLines');
         if (!this.canvas) return;
 
+        // Field lines are a heavy O(n²)-per-frame canvas effect.
+        // On phones they're a battery killer and visually noisy —
+        // the static hero particles are enough on small viewports.
+        if (isMobile()) {
+            this.canvas.style.display = 'none';
+            return;
+        }
+
         this.ctx = this.canvas.getContext('2d');
         this.time = 0;
         this.nodes = [];
@@ -351,8 +361,8 @@ class FieldLines {
     init() {
         this.resize();
 
-        // Create magnetic nodes
-        const nodeCount = Math.min(5, Math.floor(viewportW() / 300));
+        // Fewer nodes on narrow viewports (smoothly scales 3→6 as window widens).
+        const nodeCount = Math.max(2, Math.min(6, Math.floor(viewportW() / 320)));
         this.nodes = [];
 
         for (let i = 0; i < nodeCount; i++) {
