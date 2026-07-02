@@ -79,6 +79,8 @@
     <link rel="preload" as="font" type="font/woff2"
           href="https://fonts.gstatic.com/s/spacegrotesk/v22/V8mDoQDjQSkFtoMM3T6r8E7mPbF4C_k3HqU.woff2"
           crossorigin>
+    <!-- Mr Dafoe — handwritten signature font. Only one weight (regular). -->
+    <link href="https://fonts.googleapis.com/css2?family=Mr+Dafoe&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Skip link for keyboard users -->
@@ -173,6 +175,11 @@
 
     <!-- Hero Section — centered profile cutout with name backdrop -->
     <section class="hero" id="home">
+        <!-- Colored dome arch — sits BEHIND the portrait. Cutout photo on top
+             uses mix-blend-mode: multiply so the dome bleeds through skin/
+             shirt tones while dark hair stays dark. Decorative. -->
+        <div class="hero-dome" aria-hidden="true"></div>
+
         <!-- Big stylish name — sits BEHIND the image, peeks around the cutout -->
         <h1 class="hero-name" aria-hidden="true">ROHITH NAIDU ALLA</h1>
 
@@ -199,6 +206,13 @@
             <span class="hero-image-dot hero-image-dot-1" aria-hidden="true"></span>
             <span class="hero-image-dot hero-image-dot-2" aria-hidden="true"></span>
             <span class="hero-image-dot hero-image-dot-3" aria-hidden="true"></span>
+        </div>
+
+        <!-- Handwritten signature overlay — sits ON TOP of the portrait.
+             Uses Mr Dafoe (Google Font) with a slight rotation for that
+             "signed across the artwork" feel. Decorative. -->
+        <div class="hero-signature" aria-hidden="true">
+            <span class="hero-signature-text">Rohith Naidu Alla</span>
         </div>
     </section>
 

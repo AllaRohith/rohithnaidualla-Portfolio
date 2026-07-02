@@ -595,6 +595,13 @@ class Animations {
             duration: 0.9,
             ease: 'power3.out'
         });
+
+        // Mark hero as revealed — opt-in trigger for the .hero-dome and
+        // .hero-signature CSS entrance animations. Kept off by default so
+        // the elements are visible (opacity 1, final transform) without
+        // animation, in case JS or animations don't run.
+        const hero = document.querySelector('.hero');
+        if (hero) hero.classList.add('hero-revealed');
     }
 
     setupScrollAnimations() {
