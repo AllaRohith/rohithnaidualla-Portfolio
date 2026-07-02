@@ -597,35 +597,30 @@ class Animations {
         }));
 
         // 2) Draw the SVG arc — transition stroke-dashoffset → 0 via CSS.
-        //    This is intentionally NOT a GSAP timeline so it composes with
-        //    the CSS transitions above and respects prefers-reduced-motion.
+        //    Intentionally NOT a GSAP timeline so it composes with the CSS
+        //    transitions above and respects prefers-reduced-motion.
         const arcPath = hero.querySelector('.hero-arc-path');
         if (arcPath) {
-            // Force layout flush so the dasharray length is measured from
-            // the final rendered geometry, not the pre-paint state.
+            // Measure final rendered geometry, not the pre-paint state.
             const len = arcPath.getTotalLength();
             arcPath.style.strokeDasharray = String(len);
             arcPath.style.strokeDashoffset = String(len);
             requestAnimationFrame(() => {
-                // Delay matches the stagger: arc appears after the image
-                // finishes settling (image stagger ends ~1.2s).
+                // Delay matches the stagger: arc appears as the image
+                // finishes settling (~350ms in).
                 setTimeout(() => {
                     arcPath.style.strokeDashoffset = '0';
                 }, 350);
             });
         }
 
-        // 3) Existing GSAP parallax lift on the image — kept for cursor
-        //    interaction (the CSS transform composes via separate property).
-        gsap.from('.hero-image', {
-            opacity: 0,
-            y: 40,
-            duration: 0.9,
-            ease: 'power3.out'
-        });
+        // 3) Image entrance is handled by CSS [data-hero-stagger] on
+        //    .hero-image — DO NOT add a second GSAP tween here. The two
+        //    systems race on `opacity` / `transform` and the GSAP tween
+        //    locks the image at opacity 0 forever.
 
         // 4) Wire the scroll-exit observer — toggles .hero-exiting once the
-        //    user scrolls more than ~35% of the hero past the top. Uses
+        //    user scrolls more than ~25% of the hero past the top. Uses
         //    IntersectionObserver (single listener, no scroll spam).
         this.setupHeroExit(hero);
     }

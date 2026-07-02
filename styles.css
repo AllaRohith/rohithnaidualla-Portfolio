@@ -926,21 +926,8 @@ body.hero-ready .hero-image {
     transition: transform 0.4s ease, filter 0.4s ease, opacity 0.4s ease;
 }
 
-/* Scroll-driven exit — applied to the whole hero. The name blurs,
-   the image lifts, the tagline drifts down. */
-.hero.hero-exiting .hero-name {
-    filter: blur(4px);
-    opacity: 0.45;
-    transform: translate(-50%, -50%) scale(0.98);
-}
-.hero.hero-exiting .hero-image {
-    transform: translateY(-10px) scale(1.04);
-    opacity: 0.92;
-}
-.hero.hero-exiting .hero-tagline {
-    opacity: 0;
-    transform: translateY(8px);
-}
+/* Scroll-driven exit — see consolidated block at end of hero styles,
+   placed AFTER the stagger rules so it wins source-order on tie. */
 
 /* Mobile — slightly smaller, tighter line-height, allow wrap */
 @media (max-width: 860px) {
@@ -1000,9 +987,13 @@ body.hero-ready .hero-image {
     position: relative;
     width: 100%;
     max-width: 540px;
+    /* Constrain height so the cutout + tagline + padding all fit inside
+       the viewport. vh-based cap means the image scales down on short
+       screens instead of overflowing. */
+    max-height: calc(100vh - 16rem);
     aspect-ratio: 2 / 3;              /* original portrait cutout ratio (600×903) */
     align-self: center;               /* explicit vertical anchor */
-    margin-top: 13vh;                 /* push down from center */
+    margin-top: 8vh;                  /* gentle push down from center */
     z-index: 1;                       /* sits above the hero-name backdrop */
     will-change: transform;
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
@@ -1190,6 +1181,30 @@ body.hero-ready .hero-image {
 .hero.hero-in .hero-image-dot-2 { transition-delay: 0.95s; opacity: 1; }
 .hero.hero-in .hero-image-dot-3 { transition-delay: 1.05s; opacity: 1; }
 
+/* ========================================
+   SCROLL-DRIVEN EXIT — applied to the whole
+   hero. The name blurs, the image lifts,
+   the tagline drifts down.
+
+   Placed AFTER the stagger rules so it wins
+   source-order on specificity ties. Each
+   selector targets the actual rendered
+   element so it beats [data-hero-stagger].
+   ======================================== */
+.hero.hero-exiting .hero-name {
+    filter: blur(4px);
+    opacity: 0.45;
+    transform: translate(-50%, -50%) scale(0.98);
+}
+.hero.hero-exiting .hero-image {
+    transform: translateY(-10px) scale(1.04);
+    opacity: 0.92;
+}
+.hero.hero-exiting .hero-tagline {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
 /* Respect users who don't want motion. */
 @media (prefers-reduced-motion: reduce) {
     [data-hero-stagger],
@@ -1253,10 +1268,14 @@ body.hero-ready .hero-image {
            50vh). Prevents bleed-below on ANY viewport, not just those caught
            by the landscape media query. */
         max-width: min(320px, 50vh);
-        margin: 36vh auto 0;          /* a touch below middle */
+        /* Reduced from 36vh → 22vh so the cutout + tagline fit inside the
+           viewport on iPhone-class screens. */
+        margin: 22vh auto 0;
     }
     .hero-image-dot-1, .hero-image-dot-2, .hero-image-dot-3 { left: auto; right: 6%; }
     .hero-image-dot-2 { bottom: 35%; right: auto; left: 6%; }
+    /* Tagline needs tighter top margin on mobile to stay in viewport. */
+    .hero-tagline { margin-top: 1.25rem; }
 }
 
 /* Landscape phones (rotated): viewport is short + wide. The standard mobile
