@@ -915,82 +915,6 @@ body.hero-ready .hero-image {
     margin: 0;
 }
 
-/* ========================================
-   COLORED DOME ARCH — sits behind the
-   portrait. Portrait uses mix-blend-mode:
-   multiply so the dome bleeds through skin
-   and shirt, while dark hair stays dark.
-   ======================================== */
-.hero-dome {
-    position: absolute;
-    /* Center horizontally + lift so the arch crown sits just above the
-       portrait's head — matches the reference where the colored arch is
-       taller than the portrait itself. */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-
-    /* Sized proportionally to the portrait (540×810 default). The arch is
-       wider than the portrait so it visibly extends past the silhouette. */
-    width: clamp(320px, 38vw, 580px);
-    aspect-ratio: 1 / 1.25;          /* slightly taller than wide — arch shape */
-    max-height: 90vh;                /* never overflows viewport */
-
-    /* Top half-circle — bottom is flat (invisible since the rest is below
-       the portrait's natural cutoff). */
-    border-radius: 50% 50% 12px 12px / 60% 60% 12px 12px;
-    /* More accurate arch: 50% on top corners, 0 on bottom corners */
-    border-radius: 50% 50% 0 0;
-
-    /* Violet → cyan gradient — matches existing brand palette. */
-    background: linear-gradient(
-        180deg,
-        #7C3AED 0%,           /* violet */
-        #5B21B6 35%,          /* deeper violet */
-        #06B6D4 100%          /* cyan */
-    );
-
-    /* Soft glow halo around the dome — same idea as the marquee dividers,
-       but tighter so it reads as "the dome is lit" not "it bleeds across
-       the page". */
-    box-shadow:
-        0 0 60px rgba(124, 58, 237, 0.35),
-        0 0 120px rgba(6, 182, 212, 0.18);
-
-    /* Sits behind the .hero-name backdrop (z:0) and the .hero-image (z:1).
-       Negative z so it's the bottommost layer of the hero stack. */
-    z-index: -1;
-
-    pointer-events: none;
-
-    /* Soft fade on the bottom edge so the flat-cut bottom doesn't read as
-       a hard horizontal line. */
-    -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-            mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-
-    /* Entry animation: opt-in via .hero-revealed class added by JS once the
-       loader exits. This keeps the dome/signature visible by default
-       (e.g., headless screenshots, reduced-motion users). */
-    will-change: transform, opacity;
-}
-
-/* When the JS-driven hero reveal fires, the dome scales in. */
-.hero-revealed .hero-dome {
-    animation: heroDomeEnter 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
-}
-
-/* Dome entrance — scales in from below center, fades up. */
-@keyframes heroDomeEnter {
-    0% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.85);
-    }
-    100% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-}
-
 /* Mobile — slightly smaller, tighter line-height, allow wrap */
 @media (max-width: 860px) {
     .hero-name {
@@ -1063,13 +987,6 @@ body.hero-ready .hero-image {
     height: 100%;
     object-fit: contain;
     object-position: center center;
-    /* MULTIPLY blend: light pixels (skin, shirt) blend with the colored dome
-       behind, dark pixels (hair, shadows) stay dark. This is what gives the
-       reference image its "tinted silhouette" feel without needing a real
-       photo shoot. Falls back gracefully — if browser ignores blend mode the
-       photo just looks normal. */
-    mix-blend-mode: multiply;
-    isolation: isolate;
     display: block;
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
     will-change: transform, filter;
@@ -1126,73 +1043,6 @@ body.hero-ready .hero-image {
     50%      { transform: translate(5px, -10px); }
 }
 
-/* ========================================
-   HANDWRITTEN SIGNATURE OVERLAY
-   Mr Dafoe font, slight rotation, violet
-   — sits on top of the portrait like the
-   reference's "Jenny Kinda" scrawl.
-   ======================================== */
-.hero-signature {
-    position: absolute;
-    /* Anchored to the middle of the hero, slightly off-center to the
-       portrait's chest/torso area. */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-4deg);
-
-    z-index: 3;              /* above .hero-image (z:1) and .hero-name (z:0) */
-    pointer-events: none;
-    user-select: none;
-
-    /* Mr Dafoe is loaded from Google Fonts. The cursive fallback chain
-       covers Safari iOS in case of font-load failure. */
-    font-family: 'Mr Dafoe', 'Apple Chancery', 'Snell Roundhand', cursive;
-    /* Bright lime — reads cleanly on both the cyan-violet dome AND the
-       blended portrait. Lime is already your accent color so it stays
-       in the brand world. */
-    color: #D4FF3A;
-    /* Letter-spacing tightened slightly so the cursive connects naturally. */
-    letter-spacing: -0.01em;
-    /* Multi-layer shadow: dark base for legibility on light dome + glow for
-       that "wet ink" feel on dark portrait areas. */
-    text-shadow:
-        0 0 24px rgba(124, 58, 237, 0.6),
-        0 2px 12px rgba(0, 0, 0, 0.55),
-        0 0 4px rgba(212, 255, 58, 0.4);
-
-    /* Sits wide across the portrait. Scales fluidly on mobile. */
-    font-size: clamp(2.5rem, 7.5vw, 5.5rem);
-    line-height: 1;
-    white-space: nowrap;
-
-    /* Soft inner glow filter — gives the signature that "wet ink" feel. */
-    filter: drop-shadow(0 0 8px rgba(212, 255, 58, 0.35))
-            drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
-
-    /* Entry animation: opt-in via .hero-revealed (see .hero-dome block).
-       Default state: opacity 1, transform at final rotated position —
-       so the signature is visible even when JS / animations don't run. */
-    will-change: transform, opacity;
-}
-
-.hero-signature-text {
-    /* Display block so transforms apply cleanly to the whole phrase. */
-    display: inline-block;
-}
-
-/* Reduced motion — keep dome + signature static, no entrance. */
-@media (prefers-reduced-motion: reduce) {
-    .hero-dome,
-    .hero-signature {
-        animation: none !important;
-        opacity: 1;
-        transform: translate(-50%, -50%) rotate(-4deg);
-    }
-    .hero-signature {
-        transform: translate(-50%, -50%) rotate(-4deg);
-    }
-}
-
 @media (prefers-reduced-motion: reduce) {
     .hero-image-dot-1, .hero-image-dot-2, .hero-image-dot-3 {
         animation: none !important;
@@ -1241,38 +1091,6 @@ body.hero-ready .hero-image {
     }
     .hero-image-dot-1, .hero-image-dot-2, .hero-image-dot-3 { left: auto; right: 6%; }
     .hero-image-dot-2 { bottom: 35%; right: auto; left: 6%; }
-
-    /* Dome — sized to wrap the smaller mobile portrait (max-width 320px).
-       Width slightly wider than the portrait so the arch crown extends past
-       the head like the reference. */
-    .hero-dome {
-        width: clamp(280px, 80vw, 380px);
-        max-height: 70vh;
-        /* Slightly stronger glow on mobile — the dark bg swallows it otherwise */
-        box-shadow:
-            0 0 40px rgba(124, 58, 237, 0.45),
-            0 0 80px rgba(6, 182, 212, 0.25);
-    }
-
-    /* Signature — scales with viewport, stays inside the portrait area */
-    .hero-signature {
-        font-size: clamp(1.75rem, 8vw, 3rem);
-        /* Tighten the rotation slightly so long name reads better on narrow */
-        transform: translate(-50%, -50%) rotate(-3deg);
-        width: 90vw;
-        text-align: center;
-    }
-}
-
-/* Smaller phones (iPhone SE 320px and below) — tighter still */
-@media (max-width: 380px) {
-    .hero-dome {
-        width: clamp(260px, 88vw, 340px);
-    }
-    .hero-signature {
-        font-size: clamp(1.5rem, 7.5vw, 2.25rem);
-        width: 92vw;
-    }
 }
 
 /* Landscape phones (rotated): viewport is short + wide. The standard mobile
