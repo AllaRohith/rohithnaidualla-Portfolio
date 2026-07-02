@@ -195,66 +195,7 @@
                      loading="lazy" decoding="async" />
             </picture>
 
-            <!-- GRAFFITI LAYER — sits on top of the portrait, contains
-                 7 animated decorative effects. All aria-hidden so they
-                 don't clutter the screen reader. -->
-
-            <!-- 1. Scribble line — animated SVG path that draws itself
-                 around the cutout. Uses stroke-dasharray reveal animation. -->
-            <svg class="graffiti-scribble" viewBox="0 0 100 100"
-                 preserveAspectRatio="none" aria-hidden="true">
-                <path d="M 8 12
-                         Q 4 4, 12 6
-                         L 88 4
-                         Q 96 4, 94 12
-                         L 96 90
-                         Q 96 96, 88 94
-                         L 12 96
-                         Q 4 96, 6 88
-                         Z"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="0.6"
-                      stroke-linecap="round"
-                      stroke-linejoin="round" />
-            </svg>
-
-            <!-- 2-3. Floating tag stickers — small graffiti labels at
-                 angles, gently bobbing. Cyan + lime, with stars. -->
-            <span class="graffiti-tag graffiti-tag-1" aria-hidden="true">★ ROHITH ★</span>
-            <span class="graffiti-tag graffiti-tag-2" aria-hidden="true">✦ since 2024 ✦</span>
-
-            <!-- 4-5. Spray paint drips — vertical color streaks falling
-                 from the top of the cutout. Each has its own drips
-                 animation (drop falls, fades, repeats). -->
-            <span class="graffiti-drip graffiti-drip-1" aria-hidden="true"></span>
-            <span class="graffiti-drip graffiti-drip-2" aria-hidden="true"></span>
-            <span class="graffiti-drip graffiti-drip-3" aria-hidden="true"></span>
-
-            <!-- 6. Overspray dots — small color splatter scattered
-                 around the cutout. Pure CSS, no images. -->
-            <span class="graffiti-splat graffiti-splat-1" aria-hidden="true"></span>
-            <span class="graffiti-splat graffiti-splat-2" aria-hidden="true"></span>
-            <span class="graffiti-splat graffiti-splat-3" aria-hidden="true"></span>
-            <span class="graffiti-splat graffiti-splat-4" aria-hidden="true"></span>
-            <span class="graffiti-splat graffiti-splat-5" aria-hidden="true"></span>
-
-            <!-- 7. Color burst — concentric circles that pulse outward
-                 on page load. SVG with multiple circles. -->
-            <svg class="graffiti-burst" viewBox="0 0 200 200"
-                 preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-                <circle cx="100" cy="100" r="40"
-                        fill="none" stroke="currentColor"
-                        stroke-width="0.4" opacity="0.6" />
-                <circle cx="100" cy="100" r="60"
-                        fill="none" stroke="currentColor"
-                        stroke-width="0.3" opacity="0.4" />
-                <circle cx="100" cy="100" r="80"
-                        fill="none" stroke="currentColor"
-                        stroke-width="0.2" opacity="0.25" />
-            </svg>
-
-            <!-- Floating accent dots (kept from before) -->
+            <!-- Floating accent dots -->
             <span class="hero-image-dot hero-image-dot-1" aria-hidden="true"></span>
             <span class="hero-image-dot hero-image-dot-2" aria-hidden="true"></span>
             <span class="hero-image-dot hero-image-dot-3" aria-hidden="true"></span>
